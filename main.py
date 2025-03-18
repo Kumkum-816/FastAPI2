@@ -7,17 +7,17 @@ app = FastAPI()
 
 # Connect to MongoDB
 client = MongoClient("mongodb+srv://kumkumpatel64:0SMHm4HtXy88ZPB9@cluster0.xysjt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-db = client.key_value_store
-collection = db.store
+db = client.key_value_database
+collection = db.data
 
 # Pydantic Model for Data Validation
-class StoreItem(BaseModel):
+class DataItem(BaseModel):
     value: str
 
 # Store a Key-Value Pair
 @app.post("/store/{key}")
-async def store_value(key: str, item: StoreItem):
-    """Stores a key-value pair in MongoDB."""
+async def post_value(key: str, item: DataItem):
+    # Store key-value pair in MongoDB
     if collection.find_one({"key": key}):
         raise HTTPException(status_code=400, detail="Key already exists")
 
@@ -27,7 +27,7 @@ async def store_value(key: str, item: StoreItem):
 # Retrieve a Value by Key
 @app.get("/store/{key}")
 async def get_value(key: str):
-    """Retrieves the value for a given key from MongoDB."""
+    # Retrieves the value for a given key from MongoDB
     result = collection.find_one({"key": key})
     if not result:
         raise HTTPException(status_code=404, detail="Key not found")
@@ -37,7 +37,7 @@ async def get_value(key: str):
 # Delete a Key-Value Pair
 @app.delete("/store/{key}")
 async def delete_value(key: str):
-    """Deletes a key-value pair from MongoDB."""
+    # Deletes a key-value pair from MongoDB
     result = collection.delete_one({"key": key})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Key not found")
